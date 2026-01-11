@@ -101,7 +101,7 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         dataProcessor_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<dataProcessing::BidAskVolumeRatio>(40));
+            std::make_unique<dataProcessing::metrics::BidAskVolumeRatio>(40));
 
         // Save these for later
         host_ = host;

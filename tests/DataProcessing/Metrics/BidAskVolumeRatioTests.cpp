@@ -1,18 +1,20 @@
-#include "../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
+#include "../../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
 
 #include <gtest/gtest.h>
+
+using bavr = dataProcessing::metrics::BidAskVolumeRatio;
 
 class BidAskVolumeRatioTests : public testing::Test {
 protected:
     constexpr static uint16_t LOOKBACK{5};
-    dataProcessing::BidAskVolumeRatio subject{LOOKBACK};
+    bavr subject{LOOKBACK};
 
     void SetUp() override {
     }
 };
 
 TEST_F(BidAskVolumeRatioTests, shouldReturnZeroForInitialRatio) {
-    const auto ratio = subject.getGreek();
+    const auto ratio = subject.getMetric();
 
     ASSERT_EQ(ratio, 0.0);
 }
@@ -32,7 +34,7 @@ TEST_F(BidAskVolumeRatioTests, shouldReturnARatioOnceUpdatedLookbackTimes) {
         totalBidQuanty += newBidQuantity;
         totalAskQuantity += newAskQuantity;
 
-        const auto ratio = subject.getGreek();
+        const auto ratio = subject.getMetric();
         ASSERT_NEAR(ratio, totalBidQuanty / totalAskQuantity, 1e-6);
     }
 }
@@ -69,7 +71,7 @@ TEST_F(BidAskVolumeRatioTests, shouldFIFOEvictAndUpdateRatioAcordingly) {
         windowBidQuantity -= bidQuantitiesAdded[i];
         windowAskQuantity -= askQuantitiesAdded[i];
 
-        const auto ratio = subject.getGreek();
+        const auto ratio = subject.getMetric();
         ASSERT_NEAR(ratio, windowBidQuantity / windowAskQuantity, 1e-6);
     }
 }
@@ -87,7 +89,7 @@ TEST_F(BidAskVolumeRatioTests, shouldClampAskVolumeWhenZeroToAvoidDivisionByZero
 
     // Implementation uses: ratio = bidVol / max(askVol, 1e-6)
     constexpr double expected = bidQty / 0.000001;
-    const auto ratio = subject.getGreek();
+    const auto ratio = subject.getMetric();
 
     ASSERT_NEAR(ratio, expected, 1e-6);
 }
@@ -103,14 +105,14 @@ TEST_F(BidAskVolumeRatioTests, shouldClampAskVolumeWhenVerySmall) {
     subject.update(tob);
 
     constexpr double expected = bidQty / 0.000001;
-    const auto ratio = subject.getGreek();
+    const auto ratio = subject.getMetric();
 
     ASSERT_NEAR(ratio, expected, 1e-6);
 }
 
 TEST(BidAskVolumeRatioLookbackOneTests, shouldUseOnlyLastSampleWhenLookbackIsOne) {
     constexpr uint16_t lookback = 1;
-    dataProcessing::BidAskVolumeRatio subject{lookback};
+    bavr subject{lookback};
 
     auto makeTopOfBook = [](const uint64_t id, const double bidQty, const double askQty) {
         return TopOfBook{id, "BTC/USDT",
@@ -119,13 +121,13 @@ TEST(BidAskVolumeRatioLookbackOneTests, shouldUseOnlyLastSampleWhenLookbackIsOne
     };
 
     subject.update(makeTopOfBook(0, 2.0, 4.0));
-    ASSERT_NEAR(subject.getGreek(), 2.0 / 4.0, 1e-12);
+    ASSERT_NEAR(subject.getMetric(), 2.0 / 4.0, 1e-12);
 
     subject.update(makeTopOfBook(1, 5.0, 10.0));
-    ASSERT_NEAR(subject.getGreek(), 5.0 / 10.0, 1e-12);
+    ASSERT_NEAR(subject.getMetric(), 5.0 / 10.0, 1e-12);
 
     subject.update(makeTopOfBook(2, 3.0, 6.0));
-    ASSERT_NEAR(subject.getGreek(), 3.0 / 6.0, 1e-12);
+    ASSERT_NEAR(subject.getMetric(), 3.0 / 6.0, 1e-12);
 }
 
 TEST_F(BidAskVolumeRatioTests, shouldMatchManualSlidingWindowForArbitrarySequence) {
@@ -169,7 +171,7 @@ TEST_F(BidAskVolumeRatioTests, shouldMatchManualSlidingWindowForArbitrarySequenc
         if (!window.empty()) {
             const double denom = std::max(windowAskSum, 0.000001);
             const double expected = windowBidSum / denom;
-            ASSERT_NEAR(subject.getGreek(), expected, 1e-6);
+            ASSERT_NEAR(subject.getMetric(), expected, 1e-6);
         }
     }
 }

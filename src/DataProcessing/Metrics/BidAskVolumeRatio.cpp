@@ -1,8 +1,8 @@
-#include "../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
+#include "../../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
 
 #include <iostream>
 
-namespace dataProcessing {
+namespace dataProcessing::metrics {
     void BidAskVolumeRatio::updateRatio() {
         ratio = bidVol / std::max(askVol, 1e-6L);
     }
@@ -29,7 +29,7 @@ namespace dataProcessing {
         update(topOfBook.getBestBid().getQuantity(), topOfBook.getBestAsk().getQuantity());
     }
 
-    double BidAskVolumeRatio::getGreek() const {
+    double BidAskVolumeRatio::getMetric() const {
         return ratio;
     }
 }

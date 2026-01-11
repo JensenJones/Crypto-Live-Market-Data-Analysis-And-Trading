@@ -4,7 +4,7 @@
 
 #include "Metrics/Metric.hpp"
 #include "../MessageHandling/TopOfBook.hpp"
-#include "Metrics/MetricName.hpp"
+#include "Metrics/MetricNames.hpp"
 
 namespace dataProcessing {
 
@@ -15,7 +15,7 @@ namespace dataProcessing {
 
     template<EnqueueQueue Queue>
     class DataProcessor {
-        using metricUP = std::unique_ptr<Metric>;
+        using metricUP = std::unique_ptr<metrics::Metric>;
         using limitPair = std::pair<double, double>;
         const std::string symbol;
 

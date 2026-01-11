@@ -21,8 +21,9 @@ set(LIB_SOURCES
         src/MessageHandling/TopOfBook.cpp
         include/DataProcessing/DataProcessor.hpp
         include/DataProcessing/Metrics/Metric.hpp
-        src/DataProcessing/BidAskVolumeRatio.cpp
+        src/DataProcessing/Metrics/BidAskVolumeRatio.cpp
         include/DataProcessing/Metrics/BidAskVolumeRatio.hpp
+        src/DataProcessing/Metrics/MidPriceRealisedVolatility.cpp
 )
 
 set(HEADERS
@@ -34,14 +35,15 @@ set(HEADERS
         include/MessageQueue/MessageQueueConsumer.hpp
         include/DataProcessing/DataProcessor.hpp
         include/DataProcessing/Metrics/Metric.hpp
-        src/DataProcessing/BidAskVolumeRatio.cpp
+        src/DataProcessing/Metrics/BidAskVolumeRatio.cpp
         include/DataProcessing/Metrics/BidAskVolumeRatio.hpp
         src/Order/Order.cpp
         include/Order/Order.hpp
         include/Order/OrderSide.hpp
         include/Order/OrderType.hpp
         include/Order/OrderExpiry.hpp
-        include/DataProcessing/Metrics/MetricName.hpp
+        include/DataProcessing/Metrics/MetricNames.hpp
+        include/DataProcessing/Metrics/MidPriceRealisedVolatility.hpp
 )
 
 add_library(market_data_lib

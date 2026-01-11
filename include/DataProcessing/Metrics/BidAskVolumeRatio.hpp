@@ -3,7 +3,7 @@
 
 #include "Metric.hpp"
 
-namespace dataProcessing {
+namespace dataProcessing::metrics {
     class BidAskVolumeRatio : public Metric {
         uint16_t lookback;
         std::deque<std::pair<double, double>> historicData;
@@ -18,6 +18,6 @@ namespace dataProcessing {
         explicit BidAskVolumeRatio(uint16_t lookback);
         void update(const TopOfBook& topOfBook) override;
 
-        [[nodiscard]] double getGreek() const override;
+        [[nodiscard]] double getMetric() const override;
     };
 }

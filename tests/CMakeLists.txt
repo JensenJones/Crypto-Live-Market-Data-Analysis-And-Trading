@@ -6,7 +6,8 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(Tests
         MessageQueue/MessageQueueTests.cpp
-        DataProcessing/BidAskVolumeRatioTests.cpp
+        DataProcessing/Metrics/BidAskVolumeRatioTests.cpp
+        DataProcessing/Metrics/MidPriceRealisedVolatilityTests.cpp
 )
 
 target_link_libraries(Tests
