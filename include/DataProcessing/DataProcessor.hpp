@@ -29,16 +29,12 @@ namespace dataProcessing {
 
         void updateMetrics(const TopOfBook & topOfBook) const;
 
-        [[nodiscard]] double calcBidAmount() const;
-        [[nodiscard]] double calcAskAmount() const;
-
-        void checkConditions() const;
     public:
         DataProcessor(std::string symbol, Queue& metricOutgoingDataQueue);
 
         void processData(const TopOfBook& topOfBook);
         void addMetric(MetricName metricName, metricUp metric);
-        void addMetric(MetricName metricName, metricUp metric, limitPair limits);
+        void addMetric(MetricName metricName, metricUp metric, const limitPair &limits);
         void updateLimit(MetricName metricName, limitPair limits);
     };
 
@@ -72,7 +68,7 @@ namespace dataProcessing {
     }
 
     template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::addMetric(MetricName metricName, metricUp metric, limitPair limits) {
+    void DataProcessor<Queue>::addMetric(const MetricName metricName, metricUp metric, const limitPair &limits) {
         metricCalculators[metricName] = std::move(metric);
         metricLimits[metricName] = limits;
     }
