@@ -51,7 +51,7 @@ TEST_F(MidPriceRealisedVolatilityTests, warmupFirstUpdateSetsStateAndMetricRemai
     const auto tob0 = MakeTob(100, 10.0, 12.0);
     subject.update(tob0);
 
-    EXPECT_NEAR(subject.getMetric(), 0.0, 0.0);
+    EXPECT_EQ(subject.getMetric(), 0.0);
 }
 
 TEST_F(MidPriceRealisedVolatilityTests, computesVolUsingMidPriceAndUpdateIdDeltaForSingleReturn) {
@@ -75,15 +75,12 @@ TEST_F(MidPriceRealisedVolatilityTests, computesVolUsingMidPriceAndUpdateIdDelta
 TEST_F(MidPriceRealisedVolatilityTests, accumulatesOverMultipleUpdatesWithNonUniformUpdateIdDeltas) {
     MidPriceRealisedVolatility subject{10};
 
-    // Build a small path with varying dt
-    // updateIds: 100 -> 103 -> 110 -> 111 (dt: 3, 7, 1)
-    // mids derived from bid/ask
     const auto tob0 = MakeTob(100, 100.0, 102.0); // mid=101
     const auto tob1 = MakeTob(103, 101.0, 103.0); // mid=102
     const auto tob2 = MakeTob(110, 103.0, 105.0); // mid=104
     const auto tob3 = MakeTob(111, 104.0, 106.0); // mid=105
 
-    subject.update(tob0); // warmup
+    subject.update(tob0);
     subject.update(tob1);
     subject.update(tob2);
     subject.update(tob3);
@@ -101,22 +98,17 @@ TEST_F(MidPriceRealisedVolatilityTests, accumulatesOverMultipleUpdatesWithNonUni
 }
 
 TEST_F(MidPriceRealisedVolatilityTests, enforcesLookbackByDroppingOldestReturnContribution) {
-    // lookback counts RETURNS (not raw samples) in your implementation pattern.
-    // So lookback=2 means: keep the last 2 squared returns (and their dt).
     MidPriceRealisedVolatility subject{2};
 
-    // 4 updates => 3 returns; oldest return should be evicted.
-    // ids: 100 -> 101 -> 103 -> 106  (dt: 1, 2, 3)
-    // mids: 101 -> 102 -> 104 -> 105 (simple)
     const auto tob0 = MakeTob(100, 100.0, 102.0); // mid=101
     const auto tob1 = MakeTob(101, 101.0, 103.0); // mid=102
     const auto tob2 = MakeTob(103, 103.0, 105.0); // mid=104
     const auto tob3 = MakeTob(106, 104.0, 106.0); // mid=105
 
-    subject.update(tob0); // warmup
-    subject.update(tob1); // return #1
-    subject.update(tob2); // return #2
-    subject.update(tob3); // return #3 -> should evict return #1
+    subject.update(tob0);
+    subject.update(tob1);
+    subject.update(tob2);
+    subject.update(tob3);
 
     // Expected window for last 2 returns only: (tob1->tob2) and (tob2->tob3)
     const std::vector<double> midsTail{
