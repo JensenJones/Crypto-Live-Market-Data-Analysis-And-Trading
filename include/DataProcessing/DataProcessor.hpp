@@ -15,9 +15,13 @@ namespace dataProcessing {
 
     template<EnqueueQueue Queue>
     class DataProcessor {
+        using metricUP = std::unique_ptr<Metric>;
+        using limitPair = std::pair<double, double>;
         const std::string symbol;
+
         uint64_t latestUpdateId{};
-        std::unordered_map<MetricName, std::unique_ptr<Metric>> metrics;
+        std::unordered_map<MetricName, metricUP> metrics;
+        std::unordered_map<MetricName, limitPair> metricLimits;
         const Queue& tradeQueue;
 
         using valueType = Queue::valueType;
@@ -30,9 +34,11 @@ namespace dataProcessing {
         void checkConditions() const;
     public:
         DataProcessor(std::string symbol, Queue& tradeQueue);
-        void processData(const TopOfBook& topOfBook) const;
 
-        void addMetric(MetricName greekName, std::unique_ptr<Metric> greek);
+        void processData(const TopOfBook& topOfBook);
+        void addMetric(MetricName greekName, metricUP greek);
+        void addMetric(MetricName greekName, metricUP greek, limitPair limits);
+        void updateLimit(MetricName greekName, limitPair limits);
     };
 
     template<EnqueueQueue Queue>
@@ -71,14 +77,27 @@ namespace dataProcessing {
     }
 
     template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::processData(const TopOfBook& topOfBook) const {
-        if (topOfBook.getUpdateId() <= latestUpdateId) return;
-
-        updateGreeks(topOfBook);
+    void DataProcessor<Queue>::processData(const TopOfBook& topOfBook) {
+        if (uint64_t newLatestUpdateId = topOfBook.getUpdateId();
+            newLatestUpdateId > latestUpdateId) {
+            updateGreeks(topOfBook);
+            latestUpdateId = newLatestUpdateId;
+        }
     }
 
     template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::addMetric(const MetricName greekName, std::unique_ptr<Metric> greek) {
+    void DataProcessor<Queue>::addMetric(const MetricName greekName, metricUP greek) {
         metrics[greekName] = std::move(greek);
+    }
+
+    template<EnqueueQueue Queue>
+    void DataProcessor<Queue>::addMetric(MetricName greekName, metricUP greek, limitPair limits) {
+        metrics[greekName] = std::move(greek);
+        metricLimits[greekName] = limits;
+    }
+
+    template<EnqueueQueue Queue>
+    void DataProcessor<Queue>::updateLimit(MetricName greekName, limitPair limits) {
+        metricLimits[greekName] = std::move(limits);
     }
 }

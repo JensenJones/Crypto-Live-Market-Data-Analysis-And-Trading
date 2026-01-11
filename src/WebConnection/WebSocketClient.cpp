@@ -64,20 +64,19 @@ class session : public std::enable_shared_from_this<session> {
     using TobQueueConsumer = messageQueue::MessageQueueConsumer<TobMessageQueue, DataProcessor>;
 
     TobMessageQueue tobMessageQueue_{};
-    std::vector<std::unique_ptr<TobQueueConsumer>> consumers_;
-    std::vector<std::jthread> consumerThreads_;
+    std::vector<std::unique_ptr<TobQueueConsumer>> tobMqConsumers;
+    std::vector<std::jthread> tobMqConsumerThreads_;
 
     OrderMessageQueue orderMessageQueue_{};
-    dataProcessing::DataProcessor<OrderMessageQueue> dataProcessor_{"btcusdt",
-        orderMessageQueue_}; // TODO: Make symbol dynamic
+    DataProcessor dataProcessor_{"btcusdt", orderMessageQueue_}; // TODO: Make symbol dynamic
 
     void startConsumers(const int n) {
-        consumers_.reserve(n);
-        consumerThreads_.reserve(n);
+        tobMqConsumers.reserve(n);
+        tobMqConsumerThreads_.reserve(n);
 
         for (int i = 0; i < n; ++i) {
-            consumers_.emplace_back(std::make_unique<TobQueueConsumer>(tobMessageQueue_, dataProcessor_));
-            consumerThreads_.emplace_back(std::ref(*consumers_.back()));
+            tobMqConsumers.emplace_back(std::make_unique<TobQueueConsumer>(tobMessageQueue_, dataProcessor_));
+            tobMqConsumerThreads_.emplace_back(std::ref(*tobMqConsumers.back()));
         }
     }
 
@@ -242,6 +241,7 @@ public:
         if (std::string message = beast::buffers_to_string(buffer_.data()); message.length() > 30) { // Avoid invalid messages
             tobMessageQueue_.enqueue(std::move(TopOfBook{nlohmann::json::parse(message)}));
         }
+
         buffer_.consume(buffer_.size());
 
         ws_.async_read(
