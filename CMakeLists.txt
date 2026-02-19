@@ -15,7 +15,7 @@ find_package(Boost REQUIRED COMPONENTS headers)
 
 set(LIB_SOURCES
         src/WebConnection/WebSocketClient.cpp
-        src/MessageHandling/Order.cpp
+        src/MessageHandling/MarketOrder.cpp
         src/MessageHandling/MarketDepthMessage.cpp
         src/MessageHandling/OrderFactory.cpp
         src/MessageHandling/TopOfBook.cpp
@@ -28,7 +28,7 @@ set(LIB_SOURCES
 
 set(HEADERS
         include/MessageHandling/MarketDepthMessage.hpp
-        include/MessageHandling/Order.hpp
+        include/MessageHandling/MarketOrder.hpp
         include/MessageHandling/OrderFactory.hpp
         include/MessageHandling/TopOfBook.hpp
         include/MessageQueue/MessageQueue.hpp
@@ -39,7 +39,7 @@ set(HEADERS
         include/DataProcessing/Metrics/BidAskVolumeRatio.hpp
         src/Order/Order.cpp
         include/Order/Order.hpp
-        include/Order/OrderSide.hpp
+        include/Order/BuySell.hpp
         include/Order/OrderType.hpp
         include/Order/OrderExpiry.hpp
         include/DataProcessing/Metrics/MetricNames.hpp

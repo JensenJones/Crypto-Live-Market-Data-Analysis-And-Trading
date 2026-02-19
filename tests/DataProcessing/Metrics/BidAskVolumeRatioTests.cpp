@@ -28,8 +28,8 @@ TEST_F(BidAskVolumeRatioTests, shouldReturnARatioOnceUpdatedLookbackTimes) {
         double newAskQuantity = 2 + i;
 
         subject.update(TopOfBook(i, "BTC/USDT",
-            Order(10, newBidQuantity),
-            Order(11, newAskQuantity)));
+            MarketOrder(10, newBidQuantity),
+            MarketOrder(11, newAskQuantity)));
 
         totalBidQuanty += newBidQuantity;
         totalAskQuantity += newAskQuantity;
@@ -50,8 +50,8 @@ TEST_F(BidAskVolumeRatioTests, shouldFIFOEvictAndUpdateRatioAcordingly) {
         const double newAskQuantity = 2 + i;
 
         subject.update(TopOfBook(i, "BTC/USDT",
-            Order(10, newBidQuantity),
-            Order(11, newAskQuantity)));
+            MarketOrder(10, newBidQuantity),
+            MarketOrder(11, newAskQuantity)));
 
         windowBidQuantity += newBidQuantity;
         bidQuantitiesAdded.push_back(newBidQuantity);
@@ -63,8 +63,8 @@ TEST_F(BidAskVolumeRatioTests, shouldFIFOEvictAndUpdateRatioAcordingly) {
         constexpr double newBidQuantity = 1;
         constexpr double newAskQuantity = 1;
         subject.update(TopOfBook(i, "BTC/USDT",
-        Order(10, newBidQuantity),
-        Order(11, newAskQuantity)));
+        MarketOrder(10, newBidQuantity),
+        MarketOrder(11, newAskQuantity)));
 
         windowBidQuantity += newBidQuantity;
         windowAskQuantity += newAskQuantity;
@@ -82,8 +82,8 @@ TEST_F(BidAskVolumeRatioTests, shouldClampAskVolumeWhenZeroToAvoidDivisionByZero
     constexpr double askQty = 0.0;
 
     TopOfBook tob{0, "BTC/USDT",
-                  Order(100.0, bidQty),
-                  Order(101.0, askQty)};
+                  MarketOrder(100.0, bidQty),
+                  MarketOrder(101.0, askQty)};
 
     subject.update(tob);
 
@@ -99,8 +99,8 @@ TEST_F(BidAskVolumeRatioTests, shouldClampAskVolumeWhenVerySmall) {
     constexpr double tinyAsk = 0.5e-6; // less than 1e-6 threshold
 
     const TopOfBook tob{1, "BTC/USDT",
-                  Order(100.0, bidQty),
-                  Order(101.0, tinyAsk)};
+                  MarketOrder(100.0, bidQty),
+                  MarketOrder(101.0, tinyAsk)};
 
     subject.update(tob);
 
@@ -116,8 +116,8 @@ TEST(BidAskVolumeRatioLookbackOneTests, shouldUseOnlyLastSampleWhenLookbackIsOne
 
     auto makeTopOfBook = [](const uint64_t id, const double bidQty, const double askQty) {
         return TopOfBook{id, "BTC/USDT",
-                         Order(100.0, bidQty),
-                         Order(101.0, askQty)};
+                         MarketOrder(100.0, bidQty),
+                         MarketOrder(101.0, askQty)};
     };
 
     subject.update(makeTopOfBook(0, 2.0, 4.0));
@@ -153,8 +153,8 @@ TEST_F(BidAskVolumeRatioTests, shouldMatchManualSlidingWindowForArbitrarySequenc
     uint64_t id = 0;
     for (const auto& s : samples) {
         TopOfBook tob{id++, "BTC/USDT",
-                      Order(100.0, s.bidQty),
-                      Order(101.0, s.askQty)};
+                      MarketOrder(100.0, s.bidQty),
+                      MarketOrder(101.0, s.askQty)};
 
         subject.update(tob);
 

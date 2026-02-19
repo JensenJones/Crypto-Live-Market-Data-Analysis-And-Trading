@@ -7,7 +7,7 @@
 
 #include "DataProcessing/Metrics/MidPriceRealisedVolatility.hpp"
 #include "MessageHandling/TopOfBook.hpp"
-#include "MessageHandling/Order.hpp"   // adjust if your Order header path differs
+#include "MessageHandling/MarketOrder.hpp"
 
 namespace dataProcessing::metrics {
 
@@ -18,7 +18,7 @@ namespace {
                       const double bidQty = 1.0,
                       const double askQty = 1.0,
                       const std::string& symbol = "BTC/USDT") {
-        return {updateId, symbol, Order(bidPrice, bidQty), Order(askPrice, askQty)};
+        return {updateId, symbol, MarketOrder(bidPrice, bidQty), MarketOrder(askPrice, askQty)};
     }
 
     double MidFrom(const double bid, const double ask) {

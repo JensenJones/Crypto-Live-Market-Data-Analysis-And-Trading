@@ -17,7 +17,7 @@ TopOfBook::TopOfBook(const json& marketMessage) : updateId( marketMessage.at("u"
     bestAsk.set_quantity(as_double(marketMessage, "A"));
 }
 
-TopOfBook::TopOfBook(const uint64_t updateId, std::string symbol, const Order &bestBid, const Order &bestAsk): updateId(updateId),
+TopOfBook::TopOfBook(const uint64_t updateId, std::string symbol, const MarketOrder &bestBid, const MarketOrder &bestAsk): updateId(updateId),
                                                                                                                symbol(std::move(symbol)),
                                                                                                                bestBid(bestBid),
                                                                                                                bestAsk(bestAsk) {

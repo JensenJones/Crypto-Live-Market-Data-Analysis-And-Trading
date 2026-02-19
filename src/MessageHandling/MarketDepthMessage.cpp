@@ -60,8 +60,8 @@ void MarketDepthMessage::printMarketDepth() {
     printVec(asks);
 }
 
-void printVec(std::vector<Order>& orders) {
-    for (Order& order : orders) {
+void printVec(std::vector<MarketOrder>& orders) {
+    for (MarketOrder& order : orders) {
         printf("%f | %f\n", order.getPrice(), order.getQuantity());
     }
     std::println();

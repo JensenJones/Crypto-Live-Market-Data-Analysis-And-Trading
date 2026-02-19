@@ -1,13 +1,13 @@
 #pragma once
 #include <optional>
 
-#include "Order.hpp"
+#include "MarketOrder.hpp"
 
 class OrderFactory {
     bool hasPrice{};
     double price{};
-    Order order;
+    MarketOrder order;
 
 public:
-    std::optional<Order> newData(double newData);
+    std::optional<MarketOrder> newData(double newData);
 };

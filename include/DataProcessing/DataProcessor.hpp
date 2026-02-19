@@ -1,19 +1,19 @@
 #pragma once
+
+#include <expected>
 #include <string>
 #include <utility>
+#include <optional>
 
 #include "Metrics/Metric.hpp"
 #include "../MessageHandling/TopOfBook.hpp"
 #include "Metrics/MetricNames.hpp"
+#include "Order/BuySell.hpp"
 
 namespace dataProcessing {
 
-    template<typename Queue>
-    concept EnqueueQueue = requires(Queue& q) {
-        q.enqueue(std::declval<typename Queue::valueType>());
-    };
+    using MetricValue = std::vector<std::pair<MetricName, double>>;
 
-    template<EnqueueQueue Queue>
     class DataProcessor {
         using metricUp = std::unique_ptr<metrics::Metric>;
         using limitPair = std::pair<double, double>;
@@ -23,58 +23,95 @@ namespace dataProcessing {
         uint64_t latestUpdateId{};
         std::unordered_map<MetricName, metricUp> metricCalculators;
         std::unordered_map<MetricName, limitPair> metricLimits;
-        const Queue& metricDataOutgoingQueue;
-
-        using valueType = Queue::valueType;
+        uint32_t metricCount{};
 
         void updateMetrics(const TopOfBook & topOfBook) const;
 
+        std::optional<Order::BuySell> orderConditionsMet();
+
     public:
-        DataProcessor(std::string symbol, Queue& metricOutgoingDataQueue);
+        explicit DataProcessor(std::string symbol);
 
         void processData(const TopOfBook& topOfBook);
         void addMetric(MetricName metricName, metricUp metric);
         void addMetric(MetricName metricName, metricUp metric, const limitPair &limits);
+        std::expected<bool, std::string> removeMetric(MetricName metricName);
         void updateLimit(MetricName metricName, limitPair limits);
     };
 
-    template<EnqueueQueue Queue>
-    DataProcessor<Queue>::DataProcessor(std::string symbol, Queue &metricOutgoingDataQueue) :
-        symbol(std::move(symbol)), metricDataOutgoingQueue(metricOutgoingDataQueue) {
-    }
+    inline DataProcessor::DataProcessor(std::string symbol) : symbol(std::move(symbol)) {}
 
-    template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::updateMetrics(const TopOfBook &topOfBook) const {
+    void DataProcessor::updateMetrics(const TopOfBook &topOfBook) const {
         for (const auto &metric: metricCalculators | std::views::values) {
             metric->update(topOfBook);
         }
     }
 
-    template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::processData(const TopOfBook& topOfBook) {
+    std::optional<Order::BuySell> DataProcessor::orderConditionsMet() {
+        uint32_t sellWeight{};
+        uint32_t buyWeight{};
+
+        for (const auto& [metricName, metricUp] : metricCalculators) {
+            const auto &[sellLimit, buyLimit] = metricLimits[metricName];
+            if (const double metric = metricUp->getMetric(); metric < sellLimit) {
+                ++sellWeight;
+            } else if (metric > buyLimit) {
+                ++buyWeight;
+            } else {
+                return std::nullopt; // only want to order if all indicators indicate one way
+            }
+        }
+
+        if (buyWeight == metricCount) {
+            return std::optional(Order::BuySell::BUY);
+        }
+
+        if (sellWeight == metricCount) {
+            return std::optional(Order::BuySell::SELL);
+        }
+
+        return std::nullopt;
+    }
+
+    void DataProcessor::processData(const TopOfBook& topOfBook) {
         if (const uint64_t newLatestUpdateId = topOfBook.getUpdateId();
             newLatestUpdateId > latestUpdateId) {
+            std::cout << topOfBook << '\n';
             updateMetrics(topOfBook);
             latestUpdateId = newLatestUpdateId;
 
-            std::vector<double> outgoingMetrics;
-
+            if (auto buySellOpt = orderConditionsMet()) {
+                std::cout << "\tCONDITIONS MET, decision is " << buySellOpt.value() << '\n';
+            }
         }
     }
 
-    template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::addMetric(const MetricName metricName, metricUp metric) {
+    void DataProcessor::addMetric(const MetricName metricName, metricUp metric) {
         metricCalculators[metricName] = std::move(metric);
+        ++metricCount;
     }
 
-    template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::addMetric(const MetricName metricName, metricUp metric, const limitPair &limits) {
+    void DataProcessor::addMetric(const MetricName metricName, metricUp metric, const limitPair &limits) {
         metricCalculators[metricName] = std::move(metric);
         metricLimits[metricName] = limits;
+        ++metricCount;
     }
 
-    template<EnqueueQueue Queue>
-    void DataProcessor<Queue>::updateLimit(MetricName metricName, limitPair limits) {
+    std::expected<bool, std::string> DataProcessor::removeMetric(MetricName metricName) {
+        if (!metricCalculators.contains(metricName)) {
+            return std::unexpected("Metric never added");
+        }
+
+        metricCalculators.erase(metricName);
+
+        if (metricLimits.contains(metricName)) {
+            metricLimits.erase(metricName);
+        }
+
+        return true;
+    }
+
+    void DataProcessor::updateLimit(const MetricName metricName, limitPair limits) {
         metricLimits[metricName] = std::move(limits);
     }
 }

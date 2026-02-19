@@ -1,4 +1,5 @@
 #pragma once
+
 #include "DataProcessing/DataProcessor.hpp"
 
 namespace messageQueue {
@@ -14,7 +15,7 @@ namespace messageQueue {
 
     template<typename Processor, typename Msg>
     concept ProcessorConcept = requires(Processor& p, const Msg& msg) {
-        { p.processData(msg) }; // we don't care about return type
+        { p.processData(msg) };
     };
 
     template<QueueConcept Queue, typename Processor>

@@ -23,7 +23,7 @@
 #include "../../include/MessageQueue/MessageQueueConsumer.hpp"
 #include "../../include/MessageHandling/TopOfBook.hpp"
 #include "../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
-
+#include "Order/Order.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -48,6 +48,7 @@ fail(beast::error_code ec, char const *what) {
 class session : public std::enable_shared_from_this<session> {
     constexpr static size_t TOB_QUEUE_MAX_SIZE = 1000;
     constexpr static size_t ORDER_QUEUE_MAX_SIZE = 1000;
+    constexpr static size_t METRIC_DATA_QUEUE_MAX_SIZE = 1000;
 
     net::io_context &ioc_;
     tcp::resolver resolver_;
@@ -58,17 +59,17 @@ class session : public std::enable_shared_from_this<session> {
     std::string endpoint_;
     strand ws_strand_;
 
+    // TODO: Make all of this dynamic in terms of symbols and stuff.
+
     using TobMessageQueue = messageQueue::MessageQueue<TopOfBook, TOB_QUEUE_MAX_SIZE>;
-    using OrderMessageQueue = messageQueue::MessageQueue<Order, ORDER_QUEUE_MAX_SIZE>;
-    using DataProcessor = dataProcessing::DataProcessor<OrderMessageQueue>;
+    using DataProcessor = dataProcessing::DataProcessor;
     using TobQueueConsumer = messageQueue::MessageQueueConsumer<TobMessageQueue, DataProcessor>;
 
     TobMessageQueue tobMessageQueue_{};
     std::vector<std::unique_ptr<TobQueueConsumer>> tobMqConsumers;
     std::vector<std::jthread> tobMqConsumerThreads_;
 
-    OrderMessageQueue orderMessageQueue_{};
-    DataProcessor dataProcessor_{"btcusdt", orderMessageQueue_}; // TODO: Make symbol dynamic
+    DataProcessor dataProcessor_{"BTCUSDT"};
 
     void startConsumers(const int n) {
         tobMqConsumers.reserve(n);
@@ -101,7 +102,7 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         dataProcessor_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<dataProcessing::metrics::BidAskVolumeRatio>(40));
+            std::make_unique<dataProcessing::metrics::BidAskVolumeRatio>(40), {1, 1});
 
         // Save these for later
         host_ = host;
