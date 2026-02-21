@@ -38,6 +38,7 @@ namespace {
         MOCK_METHOD(void, submitOrder,
                     (BuySell side, double quantity, double price),
                     (override));
+        MOCK_METHOD(void, resetPosition, (OrderBookLevel obl), (override));
     };
 
 }
