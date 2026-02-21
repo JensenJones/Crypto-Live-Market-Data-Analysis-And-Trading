@@ -186,7 +186,7 @@ public:
     }
 
     void
-    on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep) {
+    on_connect(beast::error_code ec, const tcp::resolver::results_type::endpoint_type &ep) {
         if (ec)
             return fail(ec, "connect");
 
@@ -219,7 +219,7 @@ public:
     }
 
     void
-    on_ssl_handshake(beast::error_code ec) {
+    on_ssl_handshake(const beast::error_code &ec) {
         if (ec)
             return fail(ec, "ssl_handshake");
 
@@ -246,7 +246,7 @@ public:
     }
 
     void
-    on_handshake(beast::error_code ec) {
+    on_handshake(const beast::error_code &ec) {
         if (ec)
             return fail(ec, "handshake");
 
@@ -296,7 +296,7 @@ public:
 
     // Check how to close when a signal handler is triggered? does the websocket auto close?
     void
-    on_close(beast::error_code ec) {
+    on_close(const beast::error_code &ec) {
         // If we get here then the connection is closed gracefully
         // The make_printable() function helps print a ConstBufferSequence
         std::cout << beast::make_printable(buffer_.data()) << std::endl;
