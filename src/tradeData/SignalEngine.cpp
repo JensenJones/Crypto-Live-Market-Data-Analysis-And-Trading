@@ -42,6 +42,8 @@ namespace tradeData {
     void SignalEngine::processData(const OrderBookLevel& orderBookLevel) {
         if (const uint64_t newLatestUpdateId = orderBookLevel.getUpdateId();
             newLatestUpdateId > latestUpdateId) {
+            lastOrderBookLevelUp = std::make_unique<OrderBookLevel>(orderBookLevel);
+
             updateMetrics(orderBookLevel);
             latestUpdateId = newLatestUpdateId;
 
@@ -81,4 +83,6 @@ namespace tradeData {
     void SignalEngine::updateLimit(const MetricName metricName, limitPair limits) {
         metricLimits[metricName] = std::move(limits);
     }
+
+    OrderBookLevel SignalEngine::getLastProcessedData() const { return *lastOrderBookLevelUp; }
 }

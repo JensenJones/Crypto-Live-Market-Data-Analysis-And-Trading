@@ -8,5 +8,7 @@ namespace execution {
         explicit OrderExecutionSim(PM& pm) : OrderExecution(pm) {}
 
         void submitOrder(BuySell, double quantity, double price) override;
+
+        void resetPosition(OrderBookLevel orderBookLevel) override;
     };
 }

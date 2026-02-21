@@ -39,8 +39,11 @@ typedef boost::asio::strand<executor_type> strand;
 //------------------------------------------------------------------------------
 
 // Report a failure
-void
-fail(beast::error_code ec, char const *what) {
+void fail(beast::error_code ec, char const* what) {
+    // Ignore normal WebSocket close or timer cancellation
+    if (ec == websocket::error::closed || ec == net::error::operation_aborted)
+        return;
+
     std::cerr << what << ": " << ec.message() << "\n";
 }
 
@@ -62,6 +65,8 @@ class session : public std::enable_shared_from_this<session> {
     strand ws_strand_;
 
     // TODO: Make all of this dynamic in terms of symbols and stuff.
+    net::steady_timer closeTimer_; // timer
+
 
     using TobMessageQueue = messageQueue::MessageQueue<OrderBookLevel, TOB_QUEUE_MAX_SIZE>;
     using SignalEngine = tradeData::SignalEngine;
@@ -77,7 +82,6 @@ class session : public std::enable_shared_from_this<session> {
     std::vector<std::jthread> tobMqConsumerThreads_;
     std::unique_ptr<PosMan> positionManager_ = std::make_unique<SimplePosMan>(symbol_);
     std::unique_ptr<OrderExecution> orderExecutor = std::make_unique<OrderExecutionSim>(*positionManager_);
-
     SignalEngine signalEngine_{symbol_, *orderExecutor};
 
     void startConsumers(const int n) {
@@ -90,6 +94,26 @@ class session : public std::enable_shared_from_this<session> {
         }
     }
 
+    void on_timeout(beast::error_code ec) {
+    if (ec && ec != net::error::operation_aborted) {
+        return fail(ec, "timer");
+    }
+
+    // If the timer fired normally, close the websocket
+    if (!ec) {
+        std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
+        std::cout << "Resetting position to 0\n";
+        std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
+
+        orderExecutor->resetPosition(signalEngine_.getLastProcessedData());
+
+        ws_.async_close(websocket::close_code::normal,
+                        boost::asio::bind_executor(
+                            ws_strand_,
+                            beast::bind_front_handler(&session::on_close, shared_from_this())));
+    }
+}
+
 public:
     // Resolver and socket require an io_context
     explicit
@@ -98,6 +122,7 @@ public:
           , resolver_(net::make_strand(ioc)) // Websocket constructor takes an IO context and ssl context
           , ws_(net::make_strand(ioc), ctx) // reference to the io_context created in the main function
           , ws_strand_(ioc.get_executor()) // Get a strand from the io_context
+          , closeTimer_(ioc)
     {
     }
 
@@ -113,6 +138,11 @@ public:
         signalEngine_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
             std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {1, 1});
 
+        closeTimer_.expires_after(std::chrono::minutes(2));
+        closeTimer_.async_wait(boost::asio::bind_executor(
+            ws_strand_,
+            beast::bind_front_handler(&session::on_timeout, shared_from_this())
+        ));
         // Save these for later
         host_ = host;
         text_ = text;
@@ -244,7 +274,7 @@ public:
                 ws_strand_, beast::bind_front_handler(&session::on_read, shared_from_this())));
     }
 
-    void on_read(beast::error_code ec, std::size_t bytes_transferred) {
+    void on_read(const beast::error_code &ec, std::size_t bytes_transferred) {
         boost::ignore_unused(bytes_transferred);
         if (ec) return fail(ec, "read");
 
@@ -267,11 +297,13 @@ public:
     // Check how to close when a signal handler is triggered? does the websocket auto close?
     void
     on_close(beast::error_code ec) {
-        if (ec)
-            return fail(ec, "close");
-
         // If we get here then the connection is closed gracefully
         // The make_printable() function helps print a ConstBufferSequence
         std::cout << beast::make_printable(buffer_.data()) << std::endl;
+
+        std::cout << "Position Manager has a realised Pnl of: " << positionManager_->getRealisedPnl() << '\n';
+
+        if (ec)
+            return fail(ec, "close");
     }
 };

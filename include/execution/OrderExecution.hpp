@@ -1,4 +1,5 @@
 #pragma once
+#include "messageHandling/OrderBookLevel.hpp"
 #include "order/BuySell.hpp"
 #include "positionManagement/PositionManager.hpp"
 
@@ -15,5 +16,6 @@ namespace execution {
     public:
         virtual ~OrderExecution() = default;
         virtual void submitOrder(BuySell, double quantity, double price) = 0;
+        virtual void resetPosition(OrderBookLevel orderBookLevel) = 0;
     };
 }

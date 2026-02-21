@@ -12,6 +12,7 @@ add_executable(Tests
         DataProcessing/Metrics/BidAskVolumeRatioTests.cpp
         DataProcessing/Metrics/MidPriceRealisedVolatilityTests.cpp
         DataProcessing/SignalEngineTests.cpp
+        positionManagement/SimplePositionManagerTests.cpp
 )
 
 target_compile_options(Tests PRIVATE -std=c++23)

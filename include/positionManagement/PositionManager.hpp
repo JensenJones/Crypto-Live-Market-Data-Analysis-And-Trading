@@ -22,5 +22,6 @@ namespace positionManagement {
 
         [[nodiscard]] double getPosition() const;
         [[nodiscard]] double getRealisedPnl() const;
+        [[nodiscard]] double getAveragePrice() const;
     };
 }

@@ -23,6 +23,7 @@ namespace tradeData {
         execution::OrderExecution& orderExecutor;
 
         uint64_t latestUpdateId{};
+        std::unique_ptr<OrderBookLevel> lastOrderBookLevelUp = nullptr;
 
         std::unordered_map<MetricName, metricUp> metricCalculators;
         std::unordered_map<MetricName, limitPair> metricLimits;
@@ -39,5 +40,7 @@ namespace tradeData {
         void addMetric(MetricName metricName, metricUp metric, const limitPair &limits);
         std::expected<bool, std::string> removeMetric(MetricName metricName);
         void updateLimit(MetricName metricName, limitPair limits);
+
+        OrderBookLevel getLastProcessedData() const;
     };
 }
