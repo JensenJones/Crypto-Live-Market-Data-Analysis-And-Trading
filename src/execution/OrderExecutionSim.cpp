@@ -15,6 +15,6 @@ namespace execution {
 
         const double price = positionIsShort ? orderBookLevel.getBestBid().getPrice() : orderBookLevel.getBestAsk().getPrice();
 
-        positionManager.updatePositionWithTrade(positionIsShort ? BuySell::BUY : BuySell::SELL, position, price);
+        positionManager.updatePositionWithTrade(positionIsShort ? BuySell::BUY : BuySell::SELL, std::abs(position), price);
     }
 }

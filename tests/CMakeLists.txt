@@ -14,6 +14,7 @@ add_executable(Tests
         DataProcessing/SignalEngineTests.cpp
         positionManagement/SimplePositionManagerTests.cpp
         execution/OrderExecutionSimTests.cpp
+        execution/OrderExecutionSimTests.cpp
 )
 
 target_compile_options(Tests PRIVATE -std=c++23)

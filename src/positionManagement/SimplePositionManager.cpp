@@ -5,9 +5,9 @@ namespace positionManagement {
         const double signedQty = buySell == BuySell::BUY ? quantity: -quantity;
 
         // If same direction or flat
-        if (position == 0 || (position > 0) == (signedQty > 0)) {
+        if (position == 0 || position > 0 == signedQty > 0) {
 
-            double newPosition = position + signedQty;
+            const double newPosition = position + signedQty;
             averagePrice =
                 (position * averagePrice + signedQty * price)
                 / newPosition;
