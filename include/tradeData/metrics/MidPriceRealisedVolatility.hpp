@@ -3,9 +3,9 @@
 #include <deque>
 
 #include "Metric.hpp"
-#include "MessageHandling/TopOfBook.hpp"
+#include "messageHandling/OrderBookLevel.hpp"
 
-namespace dataProcessing::metrics {
+namespace tradeData::metrics {
     class MidPriceRealisedVolatility : Metric{
         uint16_t lookback;
         std::deque<double> historicLogReturnsSquared;
@@ -24,7 +24,7 @@ namespace dataProcessing::metrics {
 
     public:
         explicit MidPriceRealisedVolatility(uint16_t lookback);
-        void update(const TopOfBook& topOfBook) override;
+        void update(const OrderBookLevel& orderBookLevel) override;
 
         [[nodiscard]] double getMetric() const override;
     };

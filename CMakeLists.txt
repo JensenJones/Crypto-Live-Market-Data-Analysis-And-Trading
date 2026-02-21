@@ -2,8 +2,17 @@ cmake_minimum_required(VERSION 3.31.6)
 
 project(Market-Data-Project LANGUAGES CXX)
 
+enable_testing()
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_compile_options(-std=c++23)
+
+message("C++ Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+message("C++ Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
+message("C++ Compiler Path: ${CMAKE_CXX_COMPILER}")
 
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
 
@@ -18,32 +27,37 @@ set(LIB_SOURCES
         src/MessageHandling/MarketOrder.cpp
         src/MessageHandling/MarketDepthMessage.cpp
         src/MessageHandling/OrderFactory.cpp
-        src/MessageHandling/TopOfBook.cpp
-        include/DataProcessing/DataProcessor.hpp
-        include/DataProcessing/Metrics/Metric.hpp
-        src/DataProcessing/Metrics/BidAskVolumeRatio.cpp
-        include/DataProcessing/Metrics/BidAskVolumeRatio.hpp
-        src/DataProcessing/Metrics/MidPriceRealisedVolatility.cpp
+        src/MessageHandling/OrderBookLevel.cpp
+        include/tradeData/SignalEngineTests.hpp
+        include/tradeData/Metrics/Metric.hpp
+        src/tradeData/Metrics/BidAskVolumeRatio.cpp
+        include/tradeData/Metrics/BidAskVolumeRatio.hpp
+        src/tradeData/Metrics/MidPriceRealisedVolatility.cpp
+        include/execution/OrderExecution.cpp
+        src/execution/OrderExecution.hpp
 )
 
 set(HEADERS
         include/MessageHandling/MarketDepthMessage.hpp
         include/MessageHandling/MarketOrder.hpp
         include/MessageHandling/OrderFactory.hpp
-        include/MessageHandling/TopOfBook.hpp
+        include/MessageHandling/OrderBookLevel.hpp
         include/MessageQueue/MessageQueue.hpp
         include/MessageQueue/MessageQueueConsumer.hpp
-        include/DataProcessing/DataProcessor.hpp
-        include/DataProcessing/Metrics/Metric.hpp
-        src/DataProcessing/Metrics/BidAskVolumeRatio.cpp
-        include/DataProcessing/Metrics/BidAskVolumeRatio.hpp
+        include/tradeData/SignalEngineTests.hpp
+        include/tradeData/Metrics/Metric.hpp
+        src/tradeData/Metrics/BidAskVolumeRatio.cpp
+        include/tradeData/Metrics/BidAskVolumeRatio.hpp
         src/Order/Order.cpp
         include/Order/Order.hpp
         include/Order/BuySell.hpp
         include/Order/OrderType.hpp
         include/Order/OrderExpiry.hpp
-        include/DataProcessing/Metrics/MetricNames.hpp
-        include/DataProcessing/Metrics/MidPriceRealisedVolatility.hpp
+        include/tradeData/Metrics/MetricNames.hpp
+        include/tradeData/Metrics/MidPriceRealisedVolatility.hpp
+        src/TradeData/SignalEngine.cpp
+        include/execution/OrderExecution.cpp
+        src/execution/OrderExecution.hpp
 )
 
 add_library(market_data_lib

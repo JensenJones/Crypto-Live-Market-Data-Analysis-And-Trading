@@ -1,8 +1,8 @@
-#include "../../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
+#include "../../../include/tradeData/metrics/BidAskVolumeRatio.hpp"
 
 #include <iostream>
 
-namespace dataProcessing::metrics {
+namespace tradeData::metrics {
     void BidAskVolumeRatio::updateRatio() {
         ratio = bidVol / std::max(askVol, 1e-6L);
     }
@@ -25,8 +25,8 @@ namespace dataProcessing::metrics {
 
     BidAskVolumeRatio::BidAskVolumeRatio(const uint16_t lookback) : lookback{ lookback } {}
 
-    void BidAskVolumeRatio::update(const TopOfBook &topOfBook) {
-        update(topOfBook.getBestBid().getQuantity(), topOfBook.getBestAsk().getQuantity());
+    void BidAskVolumeRatio::update(const OrderBookLevel &orderBookLevel) {
+        update(orderBookLevel.getBestBid().getQuantity(), orderBookLevel.getBestAsk().getQuantity());
     }
 
     double BidAskVolumeRatio::getMetric() const {

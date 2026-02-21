@@ -1,7 +1,5 @@
 #pragma once
 
-#include "DataProcessing/DataProcessor.hpp"
-
 namespace messageQueue {
     template<typename Queue>
     concept QueueConcept =
@@ -13,16 +11,10 @@ namespace messageQueue {
             { q.dequeue(st) } -> std::same_as<std::optional<typename Queue::valueType>>;
         };
 
-    template<typename Processor, typename Msg>
-    concept ProcessorConcept = requires(Processor& p, const Msg& msg) {
-        { p.processData(msg) };
-    };
-
-    template<QueueConcept Queue, typename Processor>
-    requires ProcessorConcept<Processor, typename Queue::valueType>
+    template<QueueConcept Queue, typename SigEng>
     class MessageQueueConsumer {
         Queue& queue;
-        Processor& dataProcessor;
+        SigEng& signalEngine;
         inline static std::mutex printingMutex{};
 
         using valueType = Queue::valueType;
@@ -30,29 +22,26 @@ namespace messageQueue {
         void sendToProcessor(std::optional<valueType> dataOptional);
 
     public:
-        explicit MessageQueueConsumer(Queue &queue, Processor& dataProcessor);
+        explicit MessageQueueConsumer(Queue &queue, SigEng& signalEngine);
 
         void operator()(const std::stop_token& stopToken);
     };
 
     template<QueueConcept Queue, typename Processor>
-    requires ProcessorConcept<Processor, typename Queue::valueType>
-    MessageQueueConsumer<Queue, Processor>::MessageQueueConsumer(Queue &queue, Processor& dataProcessor) :
+    MessageQueueConsumer<Queue, Processor>::MessageQueueConsumer(Queue &queue, Processor& signalEngine) :
         queue(queue),
-        dataProcessor(dataProcessor) {
+        signalEngine(signalEngine) {
     }
 
     template<QueueConcept Queue, typename Processor>
-    requires ProcessorConcept<Processor, typename Queue::valueType>
     void MessageQueueConsumer<Queue, Processor>::sendToProcessor(std::optional<valueType> dataOptional) {
         if (dataOptional) {
             std::unique_lock lock(printingMutex);
-            dataProcessor.processData(dataOptional.value());
+            signalEngine.processData(dataOptional.value());
         }
     }
 
     template<QueueConcept Queue, typename Processor>
-    requires ProcessorConcept<Processor, typename Queue::valueType>
     void MessageQueueConsumer<Queue, Processor>::operator()(const std::stop_token &stopToken) {
         while (!stopToken.stop_requested()) {
             sendToProcessor(queue.dequeue(stopToken));

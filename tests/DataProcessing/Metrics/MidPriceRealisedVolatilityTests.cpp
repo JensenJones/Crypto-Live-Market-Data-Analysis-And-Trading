@@ -5,14 +5,14 @@
 #include <string>
 #include <vector>
 
-#include "DataProcessing/Metrics/MidPriceRealisedVolatility.hpp"
-#include "MessageHandling/TopOfBook.hpp"
-#include "MessageHandling/MarketOrder.hpp"
+#include "tradeData/metrics/MidPriceRealisedVolatility.hpp"
+#include "messageHandling/OrderBookLevel.hpp"
+#include "messageHandling/MarketOrder.hpp"
 
-namespace dataProcessing::metrics {
+namespace tradeData::metrics {
 
 namespace {
-    TopOfBook MakeTob(const uint64_t updateId,
+    OrderBookLevel MakeTob(const uint64_t updateId,
                       const double bidPrice,
                       const double askPrice,
                       const double bidQty = 1.0,
@@ -135,4 +135,4 @@ TEST_F(MidPriceRealisedVolatilityTests, midPriceIsComputedFromBestBidAndBestAskN
     EXPECT_NEAR(subject.getMetric(), 0.0, 1e-12);
 }
 
-} // namespace dataProcessing::metrics
+}

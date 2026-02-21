@@ -3,7 +3,7 @@
 #include <thread>
 #include <algorithm>
 
-#include "../../include/MessageQueue/MessageQueue.hpp"
+#include "../../include/messageQueue/MessageQueue.hpp"
 
 class MessageQueueTest : public testing::Test {
 protected:

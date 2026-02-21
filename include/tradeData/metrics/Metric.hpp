@@ -1,12 +1,12 @@
 #pragma once
+#include "messageHandling/OrderBookLevel.hpp"
 
-#include "../../MessageHandling/TopOfBook.hpp"
 
-namespace dataProcessing::metrics {
+namespace tradeData::metrics {
     class Metric {
     public:
         virtual ~Metric() = default;
-        virtual void update(const TopOfBook& topOfBook) = 0;
+        virtual void update(const OrderBookLevel& orderBookLevel) = 0;
         [[nodiscard]] virtual double getMetric() const = 0;
     };
 }

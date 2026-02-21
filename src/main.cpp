@@ -10,7 +10,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <nlohmann/json.hpp>
-#include "WebConnection/WebSocketClient.cpp"
+#include "webConnection/WebSocketClient.cpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>

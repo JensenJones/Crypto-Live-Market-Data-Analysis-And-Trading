@@ -19,11 +19,11 @@
 #include <nlohmann/json.hpp>
 #include <openssl/ssl.h>
 
-#include "../../include/MessageQueue/MessageQueue.hpp"
-#include "../../include/MessageQueue/MessageQueueConsumer.hpp"
-#include "../../include/MessageHandling/TopOfBook.hpp"
-#include "../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
-#include "Order/Order.hpp"
+#include "messageQueue/MessageQueue.hpp"
+#include "messageQueue/MessageQueueConsumer.hpp"
+#include "messageHandling/OrderBookLevel.hpp"
+#include "tradeData/metrics/BidAskVolumeRatio.hpp"
+#include "tradeData/SignalEngineTests.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -61,8 +61,8 @@ class session : public std::enable_shared_from_this<session> {
 
     // TODO: Make all of this dynamic in terms of symbols and stuff.
 
-    using TobMessageQueue = messageQueue::MessageQueue<TopOfBook, TOB_QUEUE_MAX_SIZE>;
-    using DataProcessor = dataProcessing::DataProcessor;
+    using TobMessageQueue = messageQueue::MessageQueue<OrderBookLevel, TOB_QUEUE_MAX_SIZE>;
+    using DataProcessor = tradeData::SignalEngine;
     using TobQueueConsumer = messageQueue::MessageQueueConsumer<TobMessageQueue, DataProcessor>;
 
     TobMessageQueue tobMessageQueue_{};
@@ -102,7 +102,7 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         dataProcessor_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<dataProcessing::metrics::BidAskVolumeRatio>(40), {1, 1});
+            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {1, 1});
 
         // Save these for later
         host_ = host;
@@ -240,7 +240,7 @@ public:
         if (ec) return fail(ec, "read");
 
         if (std::string message = beast::buffers_to_string(buffer_.data()); message.length() > 30) { // Avoid invalid messages
-            tobMessageQueue_.enqueue(std::move(TopOfBook{nlohmann::json::parse(message)}));
+            tobMessageQueue_.enqueue(std::move(OrderBookLevel{nlohmann::json::parse(message)}));
         }
 
         buffer_.consume(buffer_.size());

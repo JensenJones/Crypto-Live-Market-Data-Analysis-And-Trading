@@ -1,12 +1,12 @@
-#include "DataProcessing/Metrics/MidPriceRealisedVolatility.hpp"
+#include "tradeData/metrics/MidPriceRealisedVolatility.hpp"
 
 #include <cmath>
 
-#include "../../../include/DataProcessing/Metrics/BidAskVolumeRatio.hpp"
+#include "../../../include/tradeData/metrics/BidAskVolumeRatio.hpp"
 
 #include <iostream>
 
-namespace dataProcessing::metrics {
+namespace tradeData::metrics {
     MidPriceRealisedVolatility::MidPriceRealisedVolatility(const uint16_t lookback) : lookback( lookback ) {}
 
     void MidPriceRealisedVolatility::updateVol() {
@@ -38,11 +38,11 @@ namespace dataProcessing::metrics {
         updateVol();
     }
 
-    void MidPriceRealisedVolatility::update(const TopOfBook &topOfBook) {
-        const auto bestBid = topOfBook.getBestBid().getPrice();
-        const auto bestAsk = topOfBook.getBestAsk().getPrice();
+    void MidPriceRealisedVolatility::update(const OrderBookLevel &orderBookLevel) {
+        const auto bestBid = orderBookLevel.getBestBid().getPrice();
+        const auto bestAsk = orderBookLevel.getBestAsk().getPrice();
         const auto newMidPrice = (bestBid + bestAsk) / 2.0;
-        const auto newUpdateId = topOfBook.getUpdateId();
+        const auto newUpdateId = orderBookLevel.getUpdateId();
 
         if (!initialised) {
             initialised = true;
