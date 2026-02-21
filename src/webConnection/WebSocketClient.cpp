@@ -136,9 +136,9 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         signalEngine_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {1, 1});
+            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {0.5, 2});
 
-        closeTimer_.expires_after(std::chrono::minutes(10));
+        closeTimer_.expires_after(std::chrono::minutes(2));
         closeTimer_.async_wait(boost::asio::bind_executor(
             ws_strand_,
             beast::bind_front_handler(&session::on_timeout, shared_from_this())
