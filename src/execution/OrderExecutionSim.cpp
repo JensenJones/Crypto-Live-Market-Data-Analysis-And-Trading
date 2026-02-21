@@ -13,7 +13,7 @@ namespace execution {
         if (position == 0) return;
         const bool positionIsShort = position < 0;
 
-        const double price = positionIsShort ? orderBookLevel.getBestBid().getPrice() : orderBookLevel.getBestAsk().getPrice();
+        const double price = positionIsShort ? orderBookLevel.getBestAsk().getPrice() : orderBookLevel.getBestBid().getPrice();
 
         positionManager.updatePositionWithTrade(positionIsShort ? BuySell::BUY : BuySell::SELL, std::abs(position), price);
     }

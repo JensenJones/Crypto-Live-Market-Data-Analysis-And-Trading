@@ -103,9 +103,8 @@ class session : public std::enable_shared_from_this<session> {
     if (!ec) {
         std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
         std::cout << "Resetting position to 0\n";
-        std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
-
         orderExecutor->resetPosition(signalEngine_.getLastProcessedData());
+        std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
 
         ws_.async_close(websocket::close_code::normal,
                         boost::asio::bind_executor(
