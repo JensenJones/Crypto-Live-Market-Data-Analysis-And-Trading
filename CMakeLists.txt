@@ -28,13 +28,18 @@ set(LIB_SOURCES
         src/MessageHandling/MarketDepthMessage.cpp
         src/MessageHandling/OrderFactory.cpp
         src/MessageHandling/OrderBookLevel.cpp
-        include/tradeData/SignalEngineTests.hpp
+        include/tradeData/SignalEngine.hpp
         include/tradeData/Metrics/Metric.hpp
         src/tradeData/Metrics/BidAskVolumeRatio.cpp
         include/tradeData/Metrics/BidAskVolumeRatio.hpp
         src/tradeData/Metrics/MidPriceRealisedVolatility.cpp
-        include/execution/OrderExecution.cpp
-        src/execution/OrderExecution.hpp
+        include/execution/OrderExecution.hpp
+        src/execution/OrderExecutionSim.cpp
+        include/execution/OrderExecutionSim.hpp
+        src/positionManagement/PositionManager.cpp
+        include/positionManagement/PositionManager.hpp
+        src/positionManagement/SimplePositionManager.cpp
+        include/positionManagement/SimplePositionManager.hpp
 )
 
 set(HEADERS
@@ -44,7 +49,7 @@ set(HEADERS
         include/MessageHandling/OrderBookLevel.hpp
         include/MessageQueue/MessageQueue.hpp
         include/MessageQueue/MessageQueueConsumer.hpp
-        include/tradeData/SignalEngineTests.hpp
+        include/tradeData/SignalEngine.hpp
         include/tradeData/Metrics/Metric.hpp
         src/tradeData/Metrics/BidAskVolumeRatio.cpp
         include/tradeData/Metrics/BidAskVolumeRatio.hpp
@@ -56,8 +61,13 @@ set(HEADERS
         include/tradeData/Metrics/MetricNames.hpp
         include/tradeData/Metrics/MidPriceRealisedVolatility.hpp
         src/TradeData/SignalEngine.cpp
-        include/execution/OrderExecution.cpp
-        src/execution/OrderExecution.hpp
+        include/execution/OrderExecution.hpp
+        src/execution/OrderExecutionSim.cpp
+        include/execution/OrderExecutionSim.hpp
+        src/positionManagement/PositionManager.cpp
+        include/positionManagement/PositionManager.hpp
+        src/positionManagement/SimplePositionManager.cpp
+        include/positionManagement/SimplePositionManager.hpp
 )
 
 add_library(market_data_lib

@@ -1,9 +1,11 @@
-#include "tradeData/SignalEngineTests.hpp"
+#include "tradeData/SignalEngine.hpp"
 
 #include <ranges>
+#include <utility>
 
 namespace tradeData {
-    SignalEngine::SignalEngine(std::string symbol) : symbol(std::move(symbol)) {}
+    SignalEngine::SignalEngine(std::string symbol_, execution::OrderExecution &orderExecutor_) :
+        symbol(std::move(symbol_)), orderExecutor(orderExecutor_) {}
 
     void SignalEngine::updateMetrics(const OrderBookLevel &orderBookLevel) const {
         for (const auto &metric: metricCalculators | std::views::values) {
@@ -43,8 +45,11 @@ namespace tradeData {
             updateMetrics(orderBookLevel);
             latestUpdateId = newLatestUpdateId;
 
-            if (auto buySellOpt = orderConditionsMet()) {
-
+            if (const auto buySellOpt = orderConditionsMet()) {
+                const Order::BuySell buySell = buySellOpt.value();
+                const auto price = buySell == Order::BuySell::BUY ?
+                                       orderBookLevel.getBestBid().getPrice() : orderBookLevel.getBestAsk().getPrice();
+                orderExecutor.submitOrder(buySell, 1, price); // Order quantity 1 at bid/ask market price
             }
         }
     }
@@ -59,7 +64,7 @@ namespace tradeData {
         ++metricCount;
     }
 
-    std::expected<bool, std::string> SignalEngine::removeMetric(MetricName metricName) {
+    std::expected<bool, std::string> SignalEngine::removeMetric(const MetricName metricName) {
         if (!metricCalculators.contains(metricName)) {
             return std::unexpected("Metric never added");
         }

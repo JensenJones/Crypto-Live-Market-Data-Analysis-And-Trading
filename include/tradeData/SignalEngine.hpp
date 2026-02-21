@@ -6,6 +6,7 @@
 #include <optional>
 #include <unordered_map>
 
+#include "execution/OrderExecution.hpp"
 #include "metrics/Metric.hpp"
 #include "metrics/MetricNames.hpp"
 #include "order/BuySell.hpp"
@@ -19,8 +20,10 @@ namespace tradeData {
         using limitPair = std::pair<double, double>;
 
         const std::string symbol;
+        execution::OrderExecution& orderExecutor;
 
         uint64_t latestUpdateId{};
+
         std::unordered_map<MetricName, metricUp> metricCalculators;
         std::unordered_map<MetricName, limitPair> metricLimits;
         uint32_t metricCount{};
@@ -30,7 +33,7 @@ namespace tradeData {
         std::optional<Order::BuySell> orderConditionsMet();
 
     public:
-        explicit SignalEngine(std::string symbol);
+        SignalEngine(std::string  symbol, execution::OrderExecution& orderExecutor_);
 
         void processData(const OrderBookLevel& orderBookLevel);
         void addMetric(MetricName metricName, metricUp metric, const limitPair &limits);

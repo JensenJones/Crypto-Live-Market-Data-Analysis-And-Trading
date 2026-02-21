@@ -19,11 +19,13 @@
 #include <nlohmann/json.hpp>
 #include <openssl/ssl.h>
 
+#include "execution/OrderExecutionSim.hpp"
 #include "messageQueue/MessageQueue.hpp"
 #include "messageQueue/MessageQueueConsumer.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
+#include "positionManagement/SimplePositionManager.hpp"
 #include "tradeData/metrics/BidAskVolumeRatio.hpp"
-#include "tradeData/SignalEngineTests.hpp"
+#include "tradeData/SignalEngine.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -62,21 +64,28 @@ class session : public std::enable_shared_from_this<session> {
     // TODO: Make all of this dynamic in terms of symbols and stuff.
 
     using TobMessageQueue = messageQueue::MessageQueue<OrderBookLevel, TOB_QUEUE_MAX_SIZE>;
-    using DataProcessor = tradeData::SignalEngine;
-    using TobQueueConsumer = messageQueue::MessageQueueConsumer<TobMessageQueue, DataProcessor>;
+    using SignalEngine = tradeData::SignalEngine;
+    using TobQueueConsumer = messageQueue::MessageQueueConsumer<TobMessageQueue, SignalEngine>;
+    using OrderExecution = execution::OrderExecution;
+    using OrderExecutionSim = execution::OrderExecutionSim;
+    using PosMan = positionManagement::PositionManager;
+    using SimplePosMan = positionManagement::SimplePositionManager;
 
+    std::string symbol_ = "BTCUSDT";
     TobMessageQueue tobMessageQueue_{};
     std::vector<std::unique_ptr<TobQueueConsumer>> tobMqConsumers;
     std::vector<std::jthread> tobMqConsumerThreads_;
+    std::unique_ptr<PosMan> positionManager_ = std::make_unique<SimplePosMan>(symbol_);
+    std::unique_ptr<OrderExecution> orderExecutor = std::make_unique<OrderExecutionSim>(*positionManager_);
 
-    DataProcessor dataProcessor_{"BTCUSDT"};
+    SignalEngine signalEngine_{symbol_, *orderExecutor};
 
     void startConsumers(const int n) {
         tobMqConsumers.reserve(n);
         tobMqConsumerThreads_.reserve(n);
 
         for (int i = 0; i < n; ++i) {
-            tobMqConsumers.emplace_back(std::make_unique<TobQueueConsumer>(tobMessageQueue_, dataProcessor_));
+            tobMqConsumers.emplace_back(std::make_unique<TobQueueConsumer>(tobMessageQueue_, signalEngine_));
             tobMqConsumerThreads_.emplace_back(std::ref(*tobMqConsumers.back()));
         }
     }
@@ -101,7 +110,7 @@ public:
         char const *endpoint,
         const int numConsumers) {
         startConsumers(numConsumers);
-        dataProcessor_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+        signalEngine_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
             std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {1, 1});
 
         // Save these for later
