@@ -27,6 +27,8 @@
 #include "../tradeData/metric/BidAskVolumeRatio.hpp"
 #include "tradeData/SignalEngine.hpp"
 #include "../tradeData/metric/MidPriceRealisedVolatility.hpp"
+#include "tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
+#include "tradeData/metric/buySellMetric/BuySellMetric.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -137,7 +139,7 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         signalEngine_.addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100), {0.5, 2});
+            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100, metrics::BuySellDecision{0.5, 2}));
         // signalEngine_.addBuySellMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
         //     std::make_unique<tradeData::metric::MidPriceRealisedVolatility>(100), {2, 1})
 

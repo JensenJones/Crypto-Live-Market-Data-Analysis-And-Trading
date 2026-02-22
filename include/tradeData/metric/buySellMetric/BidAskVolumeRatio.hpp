@@ -1,21 +1,21 @@
 #pragma once
 #include <deque>
 
+#include "BuySellMetric.hpp"
 #include "../Metric.hpp"
 
 namespace tradeData::metrics {
-    class BidAskVolumeRatio final : public Metric {
-        uint16_t lookback;
+    class BidAskVolumeRatio final : public ::metrics::BuySellMetric {
         std::deque<std::pair<double, double>> historicData;
-        double ratio{};
+        double metricValue{};
         long double bidVol{};
         long double askVol{};
 
-        void updateRatio();
+        void updateMetricValue();
 
         void update(double newBidQuantity, double newAskQuantity);
     public:
-        explicit BidAskVolumeRatio(uint16_t lookback);
+        explicit BidAskVolumeRatio(uint16_t lookback_, ::metrics::BuySellDecision tradingIndicator);
         void update(const OrderBookLevel& orderBookLevel) override;
 
         [[nodiscard]] double getMetric() const override;

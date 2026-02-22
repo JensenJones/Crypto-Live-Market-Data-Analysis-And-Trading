@@ -5,11 +5,12 @@
 #include "tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
 
 namespace tradeData::metrics {
-    MidPriceRealisedVolatility::MidPriceRealisedVolatility(const uint16_t lookback) : Metric(lookback) {
-    }
+    MidPriceRealisedVolatility::MidPriceRealisedVolatility(uint16_t lookback_,
+                                                           ::metrics::SizingDecision tradingIndicator_) :
+    SizingMetric(lookback_, tradingIndicator_){}
 
-    void MidPriceRealisedVolatility::updateVol() {
-        volMetric = std::sqrt(historicLogReturnsSum / historicDataTimeSpacingSum);
+    void MidPriceRealisedVolatility::updateMetric() {
+        metricValue = std::sqrt(historicLogReturnsSum / static_cast<long double>(historicDataTimeSpacingSum));
     }
 
     void MidPriceRealisedVolatility::update(const double newMidPrice, const uint16_t newUpdateId) {
@@ -34,7 +35,7 @@ namespace tradeData::metrics {
             historicDataTimeSpacingSum -= rmTimeSpacing;
         }
 
-        updateVol();
+        updateMetric();
     }
 
     void MidPriceRealisedVolatility::update(const OrderBookLevel &orderBookLevel) {
@@ -54,6 +55,6 @@ namespace tradeData::metrics {
     }
 
     double MidPriceRealisedVolatility::getMetric() const {
-        return volMetric;
+        return metricValue;
     }
 }

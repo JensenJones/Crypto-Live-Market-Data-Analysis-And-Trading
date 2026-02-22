@@ -1,12 +1,11 @@
 #pragma once
 #include <deque>
 
-#include "../Metric.hpp"
+#include "SizingMetric.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
 
 namespace tradeData::metrics {
-    class MidPriceRealisedVolatility final : Metric {
-        uint16_t lookback;
+    class MidPriceRealisedVolatility final : public ::metrics::SizingMetric {
         std::deque<double> historicLogReturnsSquared;
         std::deque<uint16_t> historicDataTimeSpacing;
 
@@ -15,14 +14,13 @@ namespace tradeData::metrics {
 
         long double historicLogReturnsSum{};
         uint64_t historicDataTimeSpacingSum{};
-        double volMetric{};
         bool initialised{};
 
-        void updateVol();
+        void updateMetric();
         void update(double newMidPrice, uint16_t newUpdateId);
 
     public:
-        explicit MidPriceRealisedVolatility(uint16_t lookback);
+        explicit MidPriceRealisedVolatility(uint16_t lookback_, ::metrics::SizingDecision tradingIndicator_);
         void update(const OrderBookLevel& orderBookLevel) override;
 
         [[nodiscard]] double getMetric() const override;

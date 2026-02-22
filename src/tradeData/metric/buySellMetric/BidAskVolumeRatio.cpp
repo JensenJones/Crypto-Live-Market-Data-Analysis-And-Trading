@@ -3,8 +3,8 @@
 #include <iostream>
 
 namespace tradeData::metrics {
-    void BidAskVolumeRatio::updateRatio() {
-        ratio = bidVol / std::max(askVol, 1e-6L);
+    void BidAskVolumeRatio::updateMetricValue() {
+        metricValue = bidVol / std::max(askVol, 1e-6L);
     }
 
     void BidAskVolumeRatio::update(double newBidQuantity, double newAskQuantity) {
@@ -20,16 +20,17 @@ namespace tradeData::metrics {
             askVol -= removingAskVol;
         }
 
-        updateRatio();
+        updateMetricValue();
     }
 
-    BidAskVolumeRatio::BidAskVolumeRatio(const uint16_t lookback) : lookback{ lookback } {}
+    BidAskVolumeRatio::BidAskVolumeRatio(const uint16_t lookback_, const ::metrics::BuySellDecision tradingIndicator) :
+        BuySellMetric(lookback_, tradingIndicator) {}
 
     void BidAskVolumeRatio::update(const OrderBookLevel &orderBookLevel) {
         update(orderBookLevel.getBestBid().getQuantity(), orderBookLevel.getBestAsk().getQuantity());
     }
 
     double BidAskVolumeRatio::getMetric() const {
-        return ratio;
+        return metricValue;
     }
 }
