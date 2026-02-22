@@ -2,7 +2,7 @@
 #include "tradeData/metric/Metric.hpp"
 
 
-namespace metrics {
+namespace tradeData::metrics {
     struct SizingDecision {
         double targetCapital;
 
@@ -11,9 +11,9 @@ namespace metrics {
         }
     };
 
-    class SizingMetric : public tradeData::metrics::Metric<SizingDecision> {
+    class SizingMetric : public Metric<SizingDecision> {
     public:
         SizingMetric(long lookback_, SizingDecision tradingIndicator);
-        [[nodiscard]] virtual double getBuySellIndication() const;
+        [[nodiscard]] virtual double getSizingIndication() const;
     };
 }

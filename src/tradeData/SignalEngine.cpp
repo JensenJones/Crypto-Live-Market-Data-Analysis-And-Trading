@@ -8,7 +8,7 @@ namespace tradeData {
         symbol(std::move(symbol_)), orderExecutor(orderExecutor_) {}
 
     void SignalEngine::updateMetrics(const OrderBookLevel &orderBookLevel) const {
-        for (const auto &metric: buySellMetricCalculators | std::views::values) {
+        for (const auto& metric: buySellMetricCalculators | std::views::values) {
             metric->update(orderBookLevel);
         }
 
@@ -21,26 +21,37 @@ namespace tradeData {
         uint32_t sellWeight{};
         uint32_t buyWeight{};
 
-        for (const auto& [metricName, metricUp] : buySellMetricCalculators) {
-            const auto &[sellLimit, buyLimit] = buySellMetricLimits[metricName];
-            if (const double metric = metricUp->getMetric(); metric < sellLimit) {
-                ++sellWeight;
-            } else if (metric > buyLimit) {
-                ++buyWeight;
+        for (const auto &metricUp: buySellMetricCalculators | std::views::values) {
+            if (auto buySell = metricUp->getBuySellIndication()) {
+                if (buySell == Order::BuySell::BUY) {
+                    ++buyWeight;
+                } else {
+                    ++sellWeight;
+                }
             } else {
-                return std::nullopt; // only want to order if all indicators indicate one way
+                return std::nullopt;
             }
         }
 
-        if (buyWeight == metricCount) {
-            return std::optional(Order::BuySell::BUY);
+        if (buyWeight == buySellMetricCount) {
+            return std::optional{Order::BuySell::BUY};
         }
 
-        if (sellWeight == metricCount) {
-            return std::optional(Order::BuySell::SELL);
+        if (sellWeight == buySellMetricCount) {
+            return std::optional{Order::BuySell::SELL};
         }
 
         return std::nullopt;
+    }
+
+    double SignalEngine::calculateOrderSize() const {
+        long double sizeIndicatorSum{};
+
+        for (const auto& metricUp : sizingMetricCalculators | std::views::values) {
+            sizeIndicatorSum += metricUp->getSizingIndication();
+        }
+
+        return sizeIndicatorSum / sizingMetricCount;
     }
 
     void SignalEngine::processData(const OrderBookLevel& orderBookLevel) {
@@ -55,36 +66,57 @@ namespace tradeData {
                 const Order::BuySell buySell = buySellOpt.value();
                 const auto price = buySell == Order::BuySell::BUY ?
                                        orderBookLevel.getBestBid().getPrice() : orderBookLevel.getBestAsk().getPrice();
-                orderExecutor.submitOrder(buySell, 0.001, price); // Order quantity 1 at bid/ask market price
+                orderExecutor.submitOrder(buySell, calculateOrderSize(), price); // Order quantity 1 at bid/ask market price
             }
         }
     }
 
-    void SignalEngine::addBuySellMetric(const MetricName metricName, metricUp metric, const doublePair &limits) {
+    void SignalEngine::addBuySellMetric(const MetricName metricName, buySellMetricUp metric) {
         if (buySellMetricCalculators.contains(metricName)) {
             throw std::runtime_error("Metric Already Exists");
         }
 
         buySellMetricCalculators[metricName] = std::move(metric);
-        buySellMetricLimits[metricName] = limits;
-        ++metricCount;
+        ++buySellMetricCount;
+    }
+
+    void SignalEngine::updateBuySellMetricDecision(const MetricName metricName, const metrics::BuySellDecision buySellDecision) {
+        if (!buySellMetricCalculators.contains(metricName)) {
+            throw std::runtime_error("Cannot update a metric that doesnt exist");
+        }
+
+        buySellMetricCalculators[metricName]->setDecisionFn(buySellDecision);
+    }
+
+    void SignalEngine::addSizingMetric(const MetricName metricName, sizingMetricUp metric) {
+        if (sizingMetricCalculators.contains(metricName)) {
+            throw std::runtime_error("Metric Already Exists");
+        }
+
+        sizingMetricCalculators[metricName] = std::move(metric);
+        ++sizingMetricCount;
+    }
+
+    void SignalEngine::updateSizingMetricDecision(const MetricName metricName, const metrics::SizingDecision sizingDecision) {
+        if (!sizingMetricCalculators.contains(metricName)) {
+            throw std::runtime_error("Cannot update a metric that doesnt exist");
+        }
+
+        sizingMetricCalculators[metricName]->setDecisionFn(sizingDecision);
     }
 
     std::expected<bool, std::string> SignalEngine::removeMetric(const MetricName metricName) {
         if (buySellMetricCalculators.contains(metricName)) {
             buySellMetricCalculators.erase(metricName);
-            buySellMetricLimits.erase(metricName);
+            --buySellMetricCount;
         } else if (sizingMetricCalculators.contains(metricName)) {
             sizingMetricCalculators.erase(metricName);
+            --sizingMetricCount;
         } else {
             return std::unexpected("Metric never added");
         }
 
         return true;
-    }
-
-    void SignalEngine::updateBuySellMetricLimit(const MetricName metricName, doublePair limits) {
-        buySellMetricLimits[metricName] = std::move(limits);
     }
 
     OrderBookLevel SignalEngine::getLastProcessedData() const { return *lastOrderBookLevelUp; }

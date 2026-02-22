@@ -6,7 +6,7 @@
 
 namespace tradeData::metrics {
     MidPriceRealisedVolatility::MidPriceRealisedVolatility(uint16_t lookback_,
-                                                           ::metrics::SizingDecision tradingIndicator_) :
+                                                           SizingDecision tradingIndicator_) :
     SizingMetric(lookback_, tradingIndicator_){}
 
     void MidPriceRealisedVolatility::updateMetric() {

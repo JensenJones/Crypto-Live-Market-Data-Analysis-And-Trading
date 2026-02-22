@@ -3,7 +3,7 @@
 #include "tradeData/metric/Metric.hpp"
 
 
-namespace metrics {
+namespace tradeData::metrics {
     struct BuySellDecision {
         double buyThreshold;
         double sellThreshold;
@@ -15,7 +15,7 @@ namespace metrics {
         }
     };
 
-    class BuySellMetric : public tradeData::metrics::Metric<BuySellDecision> {
+    class BuySellMetric : public Metric<BuySellDecision> {
     public:
         BuySellMetric(long lookback_, BuySellDecision tradingIndicator);
         [[nodiscard]] virtual std::optional<Order::BuySell> getBuySellIndication() const;

@@ -1,4 +1,4 @@
-#include "../../../../include/tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
+#include "tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
 
 #include <iostream>
 
@@ -23,7 +23,7 @@ namespace tradeData::metrics {
         updateMetricValue();
     }
 
-    BidAskVolumeRatio::BidAskVolumeRatio(const uint16_t lookback_, const ::metrics::BuySellDecision tradingIndicator) :
+    BidAskVolumeRatio::BidAskVolumeRatio(const uint16_t lookback_, const BuySellDecision tradingIndicator) :
         BuySellMetric(lookback_, tradingIndicator) {}
 
     void BidAskVolumeRatio::update(const OrderBookLevel &orderBookLevel) {

@@ -5,30 +5,29 @@
  * Interchangeability of markets while running.
  **/
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/ssl.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/strand.hpp>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <cstdio>
 #include <thread>
+#include <boost/asio/strand.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/ssl.hpp>
+#include <boost/beast/websocket.hpp>
 #include <nlohmann/adl_serializer.hpp>
 #include <nlohmann/json.hpp>
 #include <openssl/ssl.h>
 
 #include "execution/OrderExecutionSim.hpp"
+#include "messageHandling/OrderBookLevel.hpp"
 #include "messageQueue/MessageQueue.hpp"
 #include "messageQueue/MessageQueueConsumer.hpp"
-#include "messageHandling/OrderBookLevel.hpp"
 #include "positionManagement/SimplePositionManager.hpp"
-#include "../tradeData/metric/BidAskVolumeRatio.hpp"
 #include "tradeData/SignalEngine.hpp"
-#include "../tradeData/metric/MidPriceRealisedVolatility.hpp"
 #include "tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
-#include "tradeData/metric/buySellMetric/BuySellMetric.hpp"
+#include <tradeData/metric/buySellMetric/BuySellMetric.hpp>
+#include "tradeData/metric/sizingMetric//MidPriceRealisedVolatility.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -138,10 +137,12 @@ public:
         char const *endpoint,
         const int numConsumers) {
         startConsumers(numConsumers);
+
         signalEngine_.addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100, metrics::BuySellDecision{0.5, 2}));
-        // signalEngine_.addBuySellMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
-        //     std::make_unique<tradeData::metric::MidPriceRealisedVolatility>(100), {2, 1})
+            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100, tradeData::metrics::BuySellDecision{0.5, 2.0}));
+
+        signalEngine_.addSizingMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
+            std::make_unique<tradeData::metrics::MidPriceRealisedVolatility>(100, tradeData::metrics::SizingDecision{5000.0}));
 
         closeTimer_.expires_after(std::chrono::minutes(40));
         closeTimer_.async_wait(boost::asio::bind_executor(
