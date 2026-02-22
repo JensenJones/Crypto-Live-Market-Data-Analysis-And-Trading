@@ -4,7 +4,7 @@
 #include "Metric.hpp"
 
 namespace tradeData::metrics {
-    class BidAskVolumeRatio : public Metric {
+    class BidAskVolumeRatio final : public Metric {
         uint16_t lookback;
         std::deque<std::pair<double, double>> historicData;
         double ratio{};

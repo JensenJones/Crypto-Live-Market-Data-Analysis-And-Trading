@@ -26,6 +26,7 @@
 #include "positionManagement/SimplePositionManager.hpp"
 #include "tradeData/metrics/BidAskVolumeRatio.hpp"
 #include "tradeData/SignalEngine.hpp"
+#include "tradeData/metrics/MidPriceRealisedVolatility.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -135,9 +136,11 @@ public:
         const int numConsumers) {
         startConsumers(numConsumers);
         signalEngine_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
-            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(40), {0.5, 2});
+            std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100), {0.5, 2});
+        signalEngine_.addMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
+            std::make_unique<tradeData::metrics::MidPriceRealisedVolatility>(100), {})
 
-        closeTimer_.expires_after(std::chrono::minutes(2));
+        closeTimer_.expires_after(std::chrono::minutes(20));
         closeTimer_.async_wait(boost::asio::bind_executor(
             ws_strand_,
             beast::bind_front_handler(&session::on_timeout, shared_from_this())

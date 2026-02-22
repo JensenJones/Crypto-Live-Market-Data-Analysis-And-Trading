@@ -1,12 +1,11 @@
 #pragma once
-#include <cstdint>
 #include <deque>
 
 #include "Metric.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
 
 namespace tradeData::metrics {
-    class MidPriceRealisedVolatility : Metric{
+    class MidPriceRealisedVolatility final : Metric {
         uint16_t lookback;
         std::deque<double> historicLogReturnsSquared;
         std::deque<uint16_t> historicDataTimeSpacing;

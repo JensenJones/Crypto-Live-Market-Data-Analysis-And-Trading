@@ -3,7 +3,7 @@
 #include "OrderExecution.hpp"
 
 namespace execution {
-    class OrderExecutionSim : public OrderExecution {
+    class OrderExecutionSim final : public OrderExecution {
     public:
         explicit OrderExecutionSim(PM& pm) : OrderExecution(pm) {}
 

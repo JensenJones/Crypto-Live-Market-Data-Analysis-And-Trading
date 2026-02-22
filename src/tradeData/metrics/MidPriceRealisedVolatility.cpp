@@ -2,9 +2,7 @@
 
 #include <cmath>
 
-#include "../../../include/tradeData/metrics/BidAskVolumeRatio.hpp"
-
-#include <iostream>
+#include "tradeData/metrics/BidAskVolumeRatio.hpp"
 
 namespace tradeData::metrics {
     MidPriceRealisedVolatility::MidPriceRealisedVolatility(const uint16_t lookback) : lookback( lookback ) {}
