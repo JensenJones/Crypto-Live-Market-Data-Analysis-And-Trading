@@ -141,7 +141,7 @@ public:
         // signalEngine_.addBuySellMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
         //     std::make_unique<tradeData::metric::MidPriceRealisedVolatility>(100), {2, 1})
 
-        closeTimer_.expires_after(std::chrono::minutes(20));
+        closeTimer_.expires_after(std::chrono::minutes(40));
         closeTimer_.async_wait(boost::asio::bind_executor(
             ws_strand_,
             beast::bind_front_handler(&session::on_timeout, shared_from_this())

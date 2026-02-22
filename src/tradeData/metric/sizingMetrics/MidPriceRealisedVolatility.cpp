@@ -1,11 +1,12 @@
-#include "../../../../include/tradeData/metric/sizingMetric/MidPriceRealisedVolatility.hpp"
+#include "tradeData/metric/sizingMetric/MidPriceRealisedVolatility.hpp"
 
 #include <cmath>
 
-#include "../../../../include/tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
+#include "tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
 
 namespace tradeData::metrics {
-    MidPriceRealisedVolatility::MidPriceRealisedVolatility(const uint16_t lookback) : lookback( lookback ) {}
+    MidPriceRealisedVolatility::MidPriceRealisedVolatility(const uint16_t lookback) : Metric(lookback) {
+    }
 
     void MidPriceRealisedVolatility::updateVol() {
         volMetric = std::sqrt(historicLogReturnsSum / historicDataTimeSpacingSum);

@@ -1,4 +1,9 @@
-#include "../../../../include/tradeData/metric/buySellMetric/BuySellMetric.hpp"
+#include "tradeData/metric/buySellMetric/BuySellMetric.hpp"
 
 namespace metrics {
+    BuySellMetric::BuySellMetric(const long lookback_, const BuySellDecision tradingIndicator) : Metric(lookback_, tradingIndicator) {}
+
+    std::optional<Order::BuySell> BuySellMetric::getBuySellIndication() const {
+        return tradingIndicator(metricValue);
+    }
 } // metrics
