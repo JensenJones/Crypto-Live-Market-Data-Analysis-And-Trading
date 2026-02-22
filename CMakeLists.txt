@@ -30,9 +30,9 @@ set(LIB_SOURCES
         src/MessageHandling/OrderBookLevel.cpp
         include/tradeData/SignalEngine.hpp
         include/tradeData/metric/Metric.hpp
-        src/tradeData/metric/BidAskVolumeRatio.cpp
-        include/tradeData/metric/BidAskVolumeRatio.hpp
-        src/tradeData/metric/MidPriceRealisedVolatility.cpp
+        src/tradeData/metric/buySellMetric/BidAskVolumeRatio.cpp
+        include/tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp
+        src/tradeData/metric/sizingMetrics/MidPriceRealisedVolatility.cpp
         include/execution/OrderExecution.hpp
         src/execution/OrderExecutionSim.cpp
         include/execution/OrderExecutionSim.hpp
@@ -40,6 +40,10 @@ set(LIB_SOURCES
         include/positionManagement/PositionManager.hpp
         src/positionManagement/SimplePositionManager.cpp
         include/positionManagement/SimplePositionManager.hpp
+        src/tradeData/metric/buySellMetric/buySellMetric.cpp
+        include/tradeData/metric/buySellMetric/buySellMetric.hpp
+        src/tradeData/metric/sizingMetrics/SizingMetric.cpp
+        include/tradeData/metric/sizingMetric/SizingMetric.hpp
 )
 
 set(HEADERS
@@ -51,15 +55,15 @@ set(HEADERS
         include/MessageQueue/MessageQueueConsumer.hpp
         include/tradeData/SignalEngine.hpp
         include/tradeData/metric/Metric.hpp
-        src/tradeData/metric/BidAskVolumeRatio.cpp
-        include/tradeData/metric/BidAskVolumeRatio.hpp
+        src/tradeData/metric/buySellMetric/BidAskVolumeRatio.cpp
+        include/tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp
         src/Order/Order.cpp
         include/Order/Order.hpp
         include/Order/BuySell.hpp
         include/Order/OrderType.hpp
         include/Order/OrderExpiry.hpp
         include/tradeData/metric/MetricNames.hpp
-        include/tradeData/metric/MidPriceRealisedVolatility.hpp
+        include/tradeData/metric/sizingMetric/MidPriceRealisedVolatility.hpp
         src/TradeData/SignalEngine.cpp
         include/execution/OrderExecution.hpp
         src/execution/OrderExecutionSim.cpp
@@ -68,6 +72,10 @@ set(HEADERS
         include/positionManagement/PositionManager.hpp
         src/positionManagement/SimplePositionManager.cpp
         include/positionManagement/SimplePositionManager.hpp
+        src/tradeData/metric/buySellMetric/buySellMetric.cpp
+        include/tradeData/metric/buySellMetric/buySellMetric.hpp
+        src/tradeData/metric/sizingMetrics/SizingMetric.cpp
+        include/tradeData/metric/sizingMetric/SizingMetric.hpp
 )
 
 add_library(market_data_lib

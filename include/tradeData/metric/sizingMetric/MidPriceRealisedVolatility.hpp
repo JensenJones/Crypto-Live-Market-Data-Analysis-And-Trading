@@ -1,7 +1,7 @@
 #pragma once
 #include <deque>
 
-#include "Metric.hpp"
+#include "../Metric.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
 
 namespace tradeData::metrics {

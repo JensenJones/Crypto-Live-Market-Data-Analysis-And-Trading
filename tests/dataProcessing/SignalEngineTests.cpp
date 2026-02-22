@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "tradeData/SignalEngine.hpp"
-#include "tradeData/metric/BidAskVolumeRatio.hpp"
+#include "../../include/tradeData/metric/buySellMetric/BidAskVolumeRatio.hpp"
 #include <gmock/gmock.h>
 
 #include "messageHandling/MarketOrder.hpp"

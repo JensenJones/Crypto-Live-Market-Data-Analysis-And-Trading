@@ -1,7 +1,7 @@
 #pragma once
 #include <deque>
 
-#include "Metric.hpp"
+#include "../Metric.hpp"
 
 namespace tradeData::metrics {
     class BidAskVolumeRatio final : public Metric {
