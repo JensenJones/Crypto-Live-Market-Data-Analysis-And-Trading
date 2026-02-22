@@ -24,9 +24,9 @@
 #include "messageQueue/MessageQueueConsumer.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
 #include "positionManagement/SimplePositionManager.hpp"
-#include "tradeData/metrics/BidAskVolumeRatio.hpp"
+#include "../tradeData/metric/BidAskVolumeRatio.hpp"
 #include "tradeData/SignalEngine.hpp"
-#include "tradeData/metrics/MidPriceRealisedVolatility.hpp"
+#include "../tradeData/metric/MidPriceRealisedVolatility.hpp"
 
 namespace beast = boost::beast; // from <boost/beast.hpp>
 namespace http = beast::http; // from <boost/beast/http.hpp>
@@ -106,6 +106,7 @@ class session : public std::enable_shared_from_this<session> {
         std::cout << "Resetting position to 0\n";
         orderExecutor->resetPosition(signalEngine_.getLastProcessedData());
         std::cout << "Position Manager has a position of: " << positionManager_->getPosition() << '\n';
+        std::cout << "Peak Cash Required: " << positionManager_->getPeakCashUsed() << '\n';
 
         ws_.async_close(websocket::close_code::normal,
                         boost::asio::bind_executor(
@@ -135,10 +136,10 @@ public:
         char const *endpoint,
         const int numConsumers) {
         startConsumers(numConsumers);
-        signalEngine_.addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+        signalEngine_.addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
             std::make_unique<tradeData::metrics::BidAskVolumeRatio>(100), {0.5, 2});
-        signalEngine_.addMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
-            std::make_unique<tradeData::metrics::MidPriceRealisedVolatility>(100), {})
+        // signalEngine_.addBuySellMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
+        //     std::make_unique<tradeData::metric::MidPriceRealisedVolatility>(100), {2, 1})
 
         closeTimer_.expires_after(std::chrono::minutes(20));
         closeTimer_.async_wait(boost::asio::bind_executor(

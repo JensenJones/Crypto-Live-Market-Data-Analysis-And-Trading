@@ -1,4 +1,4 @@
-#include "../../../include/tradeData/metrics/BidAskVolumeRatio.hpp"
+#include "../../../include/tradeData/metric/BidAskVolumeRatio.hpp"
 
 #include <gtest/gtest.h>
 

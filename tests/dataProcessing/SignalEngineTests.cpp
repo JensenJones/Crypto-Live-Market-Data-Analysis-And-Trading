@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
 #include "tradeData/SignalEngine.hpp"
-#include "tradeData/metrics/BidAskVolumeRatio.hpp"
+#include "tradeData/metric/BidAskVolumeRatio.hpp"
 #include <gmock/gmock.h>
 
 #include "messageHandling/MarketOrder.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
-#include "tradeData/metrics/MetricNames.hpp"
+#include "tradeData/metric/MetricNames.hpp"
 
 #include <memory>
 
@@ -61,7 +61,7 @@ TEST_F(SignalEngineTests, shouldAddAndRemoveMetric) {
     auto mock = std::make_unique<MockMetric>();
 
     EXPECT_NO_THROW(
-        subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock), {0.0, 1.0})
+        subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock), {0.0, 1.0})
     );
 
     auto result = subject->removeMetric(MetricName::BID_ASK_VOLUME_RATIO);
@@ -74,7 +74,7 @@ TEST_F(SignalEngineTests, shouldNotSubmitOrderForStaleUpdate) {
     auto mockMetric = std::make_unique<MockMetric>();
     auto* metricPtr = mockMetric.get();
 
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
                        std::move(mockMetric),
                        {0.5, 2.0});
 
@@ -104,10 +104,10 @@ TEST_F(SignalEngineTests, shouldThrowWhenAddingDuplicateMetric) {
     auto mock1 = std::make_unique<MockMetric>();
     auto mock2 = std::make_unique<MockMetric>();
 
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock1), {0.5, 2.0});
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock1), {0.5, 2.0});
 
     EXPECT_THROW(
-        subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock2), {0.5, 2.0}),
+        subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO, std::move(mock2), {0.5, 2.0}),
         std::runtime_error
     );
 }
@@ -122,7 +122,7 @@ TEST_F(SignalEngineTests, shouldSubmitBuyOrderWhenAllMetricsExceedBuyLimit) {
     auto mockMetric = std::make_unique<MockMetric>();
     auto* metricPtr = mockMetric.get();
 
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
                        std::move(mockMetric),
                        {0.5, 2.0});
 
@@ -146,7 +146,7 @@ TEST_F(SignalEngineTests, shouldSubmitSellOrderWhenAllMetricsBelowSellLimit) {
     auto mockMetric = std::make_unique<MockMetric>();
     auto* metricPtr = mockMetric.get();
 
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
                        std::move(mockMetric),
                        {0.5, 2.0});
 
@@ -172,11 +172,11 @@ TEST_F(SignalEngineTests, shouldNotSubmitOrderWhenSignalsConflict) {
     auto* ptr1 = mock1.get();
     auto* ptr2 = mock2.get();
 
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
                        std::move(mock1),
                        {0.5, 2.0});
 
-    subject->addMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
+    subject->addBuySellMetric(MetricName::MID_PRICE_REALISED_VOLATILITY,
                        std::move(mock2),
                        {0.1, 2.0});
 
@@ -206,7 +206,7 @@ TEST_F(SignalEngineTests, shouldChangeBuySellDecisionAfterDifferentTopOfOrderBoo
     auto* metricPtr = mockMetric.get();
 
     // Add a metric with buy/sell thresholds
-    subject->addMetric(MetricName::BID_ASK_VOLUME_RATIO,
+    subject->addBuySellMetric(MetricName::BID_ASK_VOLUME_RATIO,
                        std::move(mockMetric),
                        {0.5, 2.0});
 

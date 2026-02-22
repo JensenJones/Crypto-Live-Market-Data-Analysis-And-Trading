@@ -9,8 +9,8 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 add_executable(Tests
         MessageQueue/MessageQueueTests.cpp
-        DataProcessing/Metrics/BidAskVolumeRatioTests.cpp
-        DataProcessing/Metrics/MidPriceRealisedVolatilityTests.cpp
+        DataProcessing/metric/BidAskVolumeRatioTests.cpp
+        DataProcessing/metric/MidPriceRealisedVolatilityTests.cpp
         DataProcessing/SignalEngineTests.cpp
         positionManagement/SimplePositionManagerTests.cpp
         execution/OrderExecutionSimTests.cpp

@@ -29,10 +29,10 @@ set(LIB_SOURCES
         src/MessageHandling/OrderFactory.cpp
         src/MessageHandling/OrderBookLevel.cpp
         include/tradeData/SignalEngine.hpp
-        include/tradeData/Metrics/Metric.hpp
-        src/tradeData/Metrics/BidAskVolumeRatio.cpp
-        include/tradeData/Metrics/BidAskVolumeRatio.hpp
-        src/tradeData/Metrics/MidPriceRealisedVolatility.cpp
+        include/tradeData/metric/Metric.hpp
+        src/tradeData/metric/BidAskVolumeRatio.cpp
+        include/tradeData/metric/BidAskVolumeRatio.hpp
+        src/tradeData/metric/MidPriceRealisedVolatility.cpp
         include/execution/OrderExecution.hpp
         src/execution/OrderExecutionSim.cpp
         include/execution/OrderExecutionSim.hpp
@@ -50,16 +50,16 @@ set(HEADERS
         include/MessageQueue/MessageQueue.hpp
         include/MessageQueue/MessageQueueConsumer.hpp
         include/tradeData/SignalEngine.hpp
-        include/tradeData/Metrics/Metric.hpp
-        src/tradeData/Metrics/BidAskVolumeRatio.cpp
-        include/tradeData/Metrics/BidAskVolumeRatio.hpp
+        include/tradeData/metric/Metric.hpp
+        src/tradeData/metric/BidAskVolumeRatio.cpp
+        include/tradeData/metric/BidAskVolumeRatio.hpp
         src/Order/Order.cpp
         include/Order/Order.hpp
         include/Order/BuySell.hpp
         include/Order/OrderType.hpp
         include/Order/OrderExpiry.hpp
-        include/tradeData/Metrics/MetricNames.hpp
-        include/tradeData/Metrics/MidPriceRealisedVolatility.hpp
+        include/tradeData/metric/MetricNames.hpp
+        include/tradeData/metric/MidPriceRealisedVolatility.hpp
         src/TradeData/SignalEngine.cpp
         include/execution/OrderExecution.hpp
         src/execution/OrderExecutionSim.cpp

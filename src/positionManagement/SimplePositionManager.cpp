@@ -12,6 +12,8 @@ namespace positionManagement {
                 (position * averagePrice + signedQty * price)
                 / newPosition;
 
+            cashUsed += std::abs(quantity) * price;
+
             position = newPosition;
             return;
         }
@@ -24,11 +26,20 @@ namespace positionManagement {
                         * (position > 0 ? 1 : -1);
 
         position += signedQty;
+        cashUsed -= closingQty * averagePrice;
 
         if (position == 0) {
             averagePrice = 0.0;
         } else if (position > 0 == signedQty > 0) {
             averagePrice = price; // flipped direction
         }
+
+        if (signedQty > 0) { // BUY
+            cashUsed += quantity * price;
+        } else {
+            cashUsed -= closingQty * averagePrice;
+        }
+
+        peakCashUsed = std::max(peakCashUsed, cashUsed);
     }
 }

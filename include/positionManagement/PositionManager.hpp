@@ -14,6 +14,9 @@ namespace positionManagement {
         double averagePrice{};
         double realisedPnl{};
 
+        double cashUsed{};
+        double peakCashUsed{};
+
         explicit PositionManager(std::string symbol) : symbol(std::move(symbol)) {}
 
     public:
@@ -23,5 +26,6 @@ namespace positionManagement {
         [[nodiscard]] double getPosition() const;
         [[nodiscard]] double getRealisedPnl() const;
         [[nodiscard]] double getAveragePrice() const;
+        [[nodiscard]] double getPeakCashUsed() const;
     };
 }

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "tradeData/metrics/MidPriceRealisedVolatility.hpp"
+#include "tradeData/metric/MidPriceRealisedVolatility.hpp"
 #include "messageHandling/OrderBookLevel.hpp"
 #include "messageHandling/MarketOrder.hpp"
 
